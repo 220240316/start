@@ -1,0 +1,62 @@
+% 参数设置
+num_particles = 1000; % 粒子数量
+num_steps = 1000; % 时间步数
+time_step = 0.01; % 时间步长
+diffusion_coefficient = 1.0; % 扩散系数
+damping_coefficient = 0.1; % 阻尼系数
+collision_mean_free_path = 0.1; % 碰撞平均自由程
+
+% 初始化粒子位置
+x = zeros(num_particles, 1);
+y = zeros(num_particles, 1);
+initial_positions = [x, y]; % 保存初始位置
+
+% 创建绘图窗口
+figure;
+xlim([-50, 50]);
+ylim([-50, 50]);
+xlabel('X');
+ylabel('Y');
+title('Brownian Motion Simulation');
+
+% 模拟粒子运动
+for step = 1:num_steps
+    % 计算位移
+    displacement_x = sqrt(2 * diffusion_coefficient * time_step) * randn(num_particles, 1) ...
+                     - damping_coefficient * x * time_step ...
+                     + collision_mean_free_path * randn(num_particles, 1);
+                 
+    displacement_y = sqrt(2 * diffusion_coefficient * time_step) * randn(num_particles, 1) ...
+                     - damping_coefficient * y * time_step ...
+                     + collision_mean_free_path * randn(num_particles, 1);
+                 
+    % 更新位置
+    x = x + displacement_x;
+    y = y + displacement_y;
+    
+    % 绘制粒子位置
+    scatter(x, y, 5, 'b', 'filled');
+    xlim([-50, 50]);
+    ylim([-50, 50]);
+    title(['Brownian Motion Simulation (Step ', num2str(step), ' / ', num2str(num_steps), ')']);
+    xlabel('X');
+    ylabel('Y');
+    drawnow;
+end
+
+% 计算均方位移
+final_positions = [x, y];
+displacement_squared = sum((final_positions - initial_positions).^2, 2);
+mean_displacement_squared = mean(displacement_squared);
+
+% 计算时间的平方
+time_squared = (1:num_steps)' * time_step;
+time_squared = time_squared.^2;
+
+% 绘制均方位移与时间的平方的关系
+figure;
+plot(time_squared, mean_displacement_squared, 'b-', 'LineWidth', 2);
+xlabel('Time^2');
+ylabel('Mean Displacement^2');
+title('Verification of Einstein Relation');
+
